@@ -1,0 +1,24 @@
+cat << 'EOF' > ~/.gitignore
+# Block all hidden server configuration folders
+.*
+# Make explicit exceptions to allow tracking on these specific hidden files if needed
+!.gitignore
+
+# Block server license lists and logs
+*.txt
+LINUX_PACKAGES_LIST
+BUILD_FROM_SOURCE_PACKAGES_LICENCES
+LINUX_PACKAGES_LICENSES
+PYTHON_PACKAGES_LICENSES
+THIRD_PARTY_SOURCE_CODE_URLS
+
+# Block python and editor caches
+__pycache__/
+*.py[cod]
+.vscode/
+
+# Block app temporary storage photos
+app/storage/output/*
+!app/storage/output/.gitkeep
+EOFnvidia-acknowledgements/
+nvidia-acknowledgements*

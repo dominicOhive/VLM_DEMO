@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Vision AI Inspector</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f4f7fb; color: #1f2937; } 
+        .card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-bottom: 20px; } 
+        h1 { margin-top: 0; display: flex; align-items: center; gap: 10px; } 
+        .form-group { margin-bottom: 16px; } 
+        label { display: block; font-weight: bold; margin-bottom: 6px; } 
+        input[type="text"], input[type="file"] { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; } 
+        button { background: #0066cc; color: white; border: none; padding: 12px 20px; font-size: 1rem; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; } 
+        button:hover { background: #0052a3; } 
+        pre { background: #f3f4f6; padding: 16px; border-radius: 8px; overflow-x: auto; font-family: monospace; } 
+        .result-img { max-width: 100%; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } 
+        #timerDisplay { font-weight: bold; color: #0066cc; margin-bottom: 15px; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔍 Spatial Vision AI Inspector</h1>
+        <p>Upload an image and specify what the LVM should look for.</p>
+        
+        <form id="inspectorForm">
+            <div class="form-group">
+                <label>Choose Image:</label>
+                <input type="file" id="imageInput" accept="image/*" required> 
+            </div>
+            <div class="form-group">
+                <label>AI Prompt:</label>
+                <input type="text" id="promptInput" value="Find any cracks or dents" required>
+            </div>
+            <button type="submit" id="submitBtn">Analyze Image</button> 
+        </form>
+    </div>
+
+    <div class="card" id="resultsCard" style="display: none;">
+        <h2>AI Findings Summary</h2>
+        <p id="timerDisplay"></p>
+        <div id="imageContainer"></div>
+        <h3>Structured Output Data</h3>
+        <pre id="jsonOutput"></pre>
+    </div>
+
+    <script>
+        document.getElementById('inspectorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn'); 
+            const resultsCard = document.getElementById('resultsCard');
+            const jsonOutput = document.getElementById('jsonOutput');
+            const imageContainer = document.getElementById('imageContainer');
+            const timerDisplay = document.getElementById('timerDisplay');
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Analyzing Image...";
+
+            const formData = new FormData();
+            formData.append('image', document.getElementById('imageInput').files[0]);
+            formData.append('prompt', document.getElementById('promptInput').value);
+
+            try {
+                const response = await fetch('/analyze', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                resultsCard.style.display = "block";
+                jsonOutput.innerText = JSON.stringify(data.result, null, 2);
+                
+                // Display performance runtime data metrics
+                if (data.computationTime !== undefined) {
+                    timerDisplay.innerText = `⚡ Computation Time: ${data.computationTime} seconds`;
+                } else {
+                    timerDisplay.innerText = '';
+                }
+                
+                imageContainer.innerHTML = '';
+                if (data.imageUrl) { 
+                    const img = document.createElement('img');
+                    img.src = data.imageUrl;
+                    img.className = 'result-img';
+                    imageContainer.appendChild(img);
+                }
+            } catch (error) {
+                alert("Analysis failed: " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Analyze Image";
+            }
+        });
+    </script>
+</body>
+</html>
