@@ -72,16 +72,15 @@ Schema:
 }}
 
 Rules:
-- Use SAM3 only for visible localizable objects, regions, defects, marks, parts, text areas, or materials.
-- For broad damage or defect requests, produce anomaly-level targets, not parent-object targets.
-- Good damage targets: hairline crack, branching crack, joint separation, paint chip, rust spot, rust patch, dirt buildup, deteriorated caulk, stain, dent, scratch, broken edge.
-- Bad damage targets: damage, damaged area, surface, panel, door, frame, hinge, track, sealant, caulking, wall, material, object.
-- If the user asks for damages, set constraints.damage_only=true and every target prompt must describe the visible defect itself, not the object that contains it.
-- For broad damage requests, expand into concrete short singular prompts such as crack, paint chip, rust spot, dirt buildup, deteriorated caulk, joint separation.
+- Use SAM3 for any visible localizable objects, items, regions, defects, structural components, or text areas specified by the user.
+- CRITICAL: Always set "needs_segmentation": true and "answer_mode": "segmentation" or "mixed" for any prompts structured around identification, verification, or location mapping, specifically including questions starting with or containing "is this a...", "can you find...", "locate the...", or "find the...". Polygons must always be generated to provide a visual answer for these requests.
+- If the user asks for generic anomalies, damages, or defects, set constraints.damage_only=true and produce narrow anomaly-level targets (e.g., crack, paint chip, rust spot, dent, scratch).
+- If the user asks for real physical objects (e.g., "coffee cup", "fire extinguisher", "solar panel", "window frame"), map them cleanly as parent-level targets and keep constraints.damage_only=false.
+- For broad damage requests, expand into concrete short singular prompts such as crack, paint chip, rust spot, dirt buildup.
 - For narrow requests such as "find cracks", keep one target: crack.
 - For count requests, set expected_output to count and still use segmentation when the target is countable.
 - For identify or describe requests that do not ask for masks/locations/counts, set needs_segmentation false and answer_mode text-only.
-- Every target prompt must be short, singular, and under 5 words. Do not use full user sentences or generic category words as SAM3 prompts.
+- Every target prompt must be short, singular, and under 5 words. Do not use full user sentences.
 - Prefer at most 8 targets. Use fewer when the user is specific.
 """.strip()
 def _field(condition, name: str):

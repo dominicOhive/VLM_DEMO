@@ -134,12 +134,13 @@ async def analyze_image(
     execution_duration = round(time.perf_counter() - start_time, 2)
     logger.info("Image analysis completed locally in %s seconds", execution_duration)
 
-    return {
-        "result": parsed,
-        "imageUrl": image_url,
-        "annotatedImageUrl": image_url,
-        "computationTime": execution_duration
-    }
+    
+    response_payload = {**parsed}
+    response_payload["imageUrl"] = image_url
+    response_payload["annotatedImageUrl"] = image_url
+    response_payload["computationTime"] = execution_duration
+
+    return response_payload
 
 # 4. Storage & Frontend Rendering Routes
 @app.get("/results/{filename}")

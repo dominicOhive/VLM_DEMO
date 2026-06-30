@@ -64,8 +64,16 @@
                 const response = await fetch('/analyze', { method: 'POST', body: formData });
                 const data = await response.json();
                 
-                resultsCard.style.display = "block";
-                jsonOutput.innerText = JSON.stringify(data.result, null, 2);
+               resultsCard.style.display = "block";
+
+// Extract only the three fields you want to show
+const simplifiedOutput = {
+    status: data.status || (data.result ? data.result.status : ""),
+    answer: data.answer || (data.result ? data.result.answer : "")
+};
+
+// Render only this filtered object to the UI container
+jsonOutput.innerText = JSON.stringify(simplifiedOutput, null, 2);
                 
                 // Display performance runtime data metrics
                 if (data.computationTime !== undefined) {

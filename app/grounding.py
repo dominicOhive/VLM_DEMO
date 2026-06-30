@@ -92,7 +92,8 @@ async def run_grounding_detection(
         prompts_to_try = [primary_prompt]
         if target.get("synonyms"):
             prompts_to_try.extend([_compact_sam3_prompt(s) for s in target["synonyms"]])
-        if "crack" in primary_prompt.lower() or "fracture" in primary_prompt.lower():
+        is_crack_target = any(w in primary_prompt.lower() for w in ["crack", "fracture", "split", "fissure"])
+        if is_crack_target:
             prompts_to_try.extend(["thin line", "dark fracture", "crevice line", "surface split"])
 
         target_detections = []
@@ -518,7 +519,8 @@ def _filter_detections_for_plan(
 ) -> list[dict[str, Any]]:
     constraints = plan.get("constraints") if isinstance(plan.get("constraints"), dict) else {}
     damage_like = bool(constraints.get("damage_only") or constraints.get("anomaly_only"))
-    if not damage_like:
+    
+    if not damage_like or plan.get("task_type") in ["find", "identify", "detect", "count"]:
         return detections
 
     image_area = max(int(image_size[0]) * int(image_size[1]), 1)
